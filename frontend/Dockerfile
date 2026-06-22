@@ -5,8 +5,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Clean install dependencies - removes lock file to rebuild for current platform
+RUN rm -f package-lock.json && npm install --legacy-peer-deps
 
 # Copy the rest of the application
 COPY . .
