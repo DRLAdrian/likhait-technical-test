@@ -3,25 +3,27 @@ require 'rails_helper'
 RSpec.describe "Api::Expenses", type: :request do
   let!(:food_category) { Category.create!(name: "Food") }
   let!(:transport_category) { Category.create!(name: "Transport") }
+  let!(:shopping_category) { Category.create!(name: "Shopping") }
 
   describe "GET /api/expenses" do
   let!(:expense1) { Expense.create!(description: "Lunch", amount: 100.00, category: food_category, date: Date.today) }
   let!(:expense2) { Expense.create!(description: "Taxi", amount: 50.00, category: transport_category, date: Date.today) }
+  let!(:expense3) { Expense.create!(description: "Bag", amount: 150.00, category: shopping_category, date: Date.yesterday) }
 
     it "returns all expenses with category information" do
       get "/api/expenses"
 
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
-      expect(json.length).to eq(2)
+      expect(json.length).to eq(3)
     end
 
-    it "returns expenses in descending order by created_at" do
+    it "returns expenses in descending order by date, then created_at" do
       get "/api/expenses"
 
       json = JSON.parse(response.body)
       expect(json.first["id"]).to eq(expense2.id)
-      expect(json.last["id"]).to eq(expense1.id)
+      expect(json.last["id"]).to eq(expense3.id)
     end
   end
 
