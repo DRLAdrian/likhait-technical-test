@@ -1,3 +1,7 @@
+-- NOTE: This file exists only for auditing purposes and is NOT actively used.
+-- The current app schema, migrations, and seeding are managed by Rails.
+-- See backend/db/migrate/ for the authoritative schema and backend/db/seeds.rb for seed data.
+
 -- Create database if not exists
 CREATE DATABASE IF NOT EXISTS expense_system_development CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
