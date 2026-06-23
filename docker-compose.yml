@@ -13,7 +13,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # NOTE: init.sql is not used. Schema and seeds are managed by Rails migrations (backend/db/migrate/) and seeds (backend/db/seeds.rb)
+      # - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test:
         [
