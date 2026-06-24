@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getExpenses, createExpense, createCategory } from "../services/api";
 import { CategoryFormData, Expense, ExpenseFormData } from "../types";
+import { useFetchCategories } from "../hooks/useFetchCategories";
 import YearNavigation from "../components/YearNavigation";
 import { MonthNavigation } from "../components/MonthNavigation";
 import CategoryBreakdown from "../components/CategoryBreakdown";
@@ -15,6 +16,7 @@ const HistoryPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<ModalType | null>(null);
+  const { categories, refetchCategories } = useFetchCategories();
 
   // Get year and month from URL params, default to current date if not provided
   const getInitialYearMonth = () => {
@@ -82,7 +84,7 @@ const HistoryPage: React.FC = () => {
     try {
       await createCategory(data);
       setIsModalOpen(false);
-      fetchExpenses(); // Refresh expenses to reflect new category
+      await refetchCategories();
     } catch (error) {
       console.error("Error creating category:", error);
       throw error;
@@ -116,6 +118,7 @@ const HistoryPage: React.FC = () => {
         <ExpenseForm
           onSubmit={handleAddExpense}
           onCancel={() => setIsModalOpen(false)}
+          categories={categories}
         />
       ),
     },
@@ -137,11 +140,11 @@ const HistoryPage: React.FC = () => {
     {} as Record<string, { category: string; amount: number; count: number }>,
   );
 
-  const categories = Object.values(categoryData).sort(
+  const br_categories = Object.values(categoryData).sort(
     (a, b) => b.amount - a.amount,
   );
-  const total = categories.reduce((sum, cat) => sum + cat.amount, 0);
-  const totalCount = categories.reduce((sum, cat) => sum + cat.count, 0);
+  const total = br_categories.reduce((sum, cat) => sum + cat.amount, 0);
+  const totalCount = br_categories.reduce((sum, cat) => sum + cat.count, 0);
 
   const pageStyle: React.CSSProperties = {
     padding: "48px 64px",
@@ -216,7 +219,7 @@ const HistoryPage: React.FC = () => {
         ) : (
           <>
             <CategoryBreakdown
-              categories={categories}
+              categories={br_categories}
               total={total}
               totalCount={totalCount}
             />
