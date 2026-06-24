@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { getExpenses, createExpense } from "../services/api";
-import { Expense, ExpenseFormData } from "../types";
+import { getExpenses, createExpense, createCategory } from "../services/api";
+import { CategoryFormData, Expense, ExpenseFormData } from "../types";
 import YearNavigation from "../components/YearNavigation";
 import { MonthNavigation } from "../components/MonthNavigation";
 import CategoryBreakdown from "../components/CategoryBreakdown";
 import { CalendarExpenseTable } from "../components/CalendarExpenseTable";
 import { ExpenseForm } from "../components/ExpenseForm";
+import { CategoryForm } from "../components/CategoryForm";
 import { Modal, Button } from "../vibes";
 import { COLORS } from "../constants/colors";
 
@@ -69,6 +70,17 @@ const HistoryPage: React.FC = () => {
   const handleMonthChange = (month: number) => {
     setSelectedMonth(month);
     updateURL(selectedYear, month);
+  };
+
+  const handleAddCategory = async (data: CategoryFormData) => {
+    try {
+      await createCategory(data);
+      setIsModalOpen(false);
+      fetchExpenses(); // Refresh expenses to reflect new category
+    } catch (error) {
+      console.error("Error creating category:", error);
+      throw error;
+    }
   };
 
   const handleAddExpense = async (data: ExpenseFormData) => {
@@ -138,6 +150,11 @@ const HistoryPage: React.FC = () => {
     color: COLORS.secondary.s08,
   };
 
+  const actionButtonsStyle: React.CSSProperties = {
+    display: "flex",
+    gap: "0.5rem",
+  };
+
   return (
     <div style={pageStyle}>
       <div style={headerStyle}>
@@ -148,9 +165,14 @@ const HistoryPage: React.FC = () => {
             onYearChange={handleYearChange}
           />
         </div>
-        <Button variant="primary" onClick={() => setIsModalOpen(true)}>
-          Add Expense
-        </Button>
+        <div style={actionButtonsStyle}>
+          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+            Add Category
+          </Button>
+          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+            Add Expense
+          </Button>
+        </div>
       </div>
 
       <MonthNavigation
@@ -186,6 +208,16 @@ const HistoryPage: React.FC = () => {
       >
         <ExpenseForm
           onSubmit={handleAddExpense}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      </Modal>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Add New Expense"
+      >
+        <CategoryForm
+          onSubmit={handleAddCategory}
           onCancel={() => setIsModalOpen(false)}
         />
       </Modal>
