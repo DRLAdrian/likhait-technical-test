@@ -19,6 +19,13 @@ export interface ExpenseFormData {
   date: string;
 }
 
+export interface ExpenseFormErrors {
+  description?: string;
+  amount?: string;
+  category?: string;
+  date?: string;
+}
+
 export interface MonthlySummary {
   totalExpenses: number;
   categoryBreakdown: CategoryBreakdown[];

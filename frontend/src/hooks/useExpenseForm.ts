@@ -3,7 +3,7 @@
  */
 
 import { useState } from "react";
-import { ExpenseFormData } from "../types";
+import { ExpenseFormData, ExpenseFormErrors } from "../types";
 import { formatDate } from "../utils/expenseUtils";
 
 interface UseExpenseFormProps {
@@ -76,7 +76,13 @@ export function useExpenseForm({ initialData, onSubmit }: UseExpenseFormProps) {
       });
       setErrors({});
     } catch (error) {
-      console.error("Form submission error:", error);
+      const responseErrors = (error as Error & { responseErrors?: ExpenseFormErrors }).responseErrors;
+
+      if (responseErrors) {
+        setErrors(responseErrors);
+      } else {
+        console.error(responseErrors);
+      }
     } finally {
       setIsSubmitting(false);
     }
