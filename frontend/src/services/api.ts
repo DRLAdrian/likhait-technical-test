@@ -2,7 +2,7 @@
  * API service for communicating with the backend
  */
 
-import { Expense, ExpenseFormData } from "../types";
+import { Expense, ExpenseFormData, ExpenseFormErrors } from "../types";
 
 const API_BASE_URL = "http://localhost:3000/api";
 
@@ -69,11 +69,17 @@ export async function createExpense(data: ExpenseFormData): Promise<Expense> {
     body: JSON.stringify({ expense: expenseData }),
   });
 
+  const json = await response.json();
+
   if (!response.ok) {
-    throw new Error("Failed to create expense");
+    const error = new Error("Failed to create expense") as Error & {
+      responseErrors?: ExpenseFormErrors;
+    };
+    error.responseErrors = json.errors as ExpenseFormErrors;
+    throw error;
   }
 
-  return response.json();
+  return json;
 }
 
 /**
@@ -91,11 +97,17 @@ export async function updateExpense(
     body: JSON.stringify({ expense: data }),
   });
 
+  const json = await response.json();
+
   if (!response.ok) {
-    throw new Error("Failed to update expense");
+    const error = new Error("Failed to create expense") as Error & {
+      responseErrors?: ExpenseFormErrors;
+    };
+    error.responseErrors = json.errors as ExpenseFormErrors;
+    throw error;
   }
 
-  return response.json();
+  return json;
 }
 
 /**

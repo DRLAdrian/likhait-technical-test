@@ -7,6 +7,7 @@ import { ExpenseFormData } from "../types";
 import { EXPENSE_CATEGORIES } from "../constants/categories";
 import { TextField, SelectBox, Button } from "../vibes";
 import { useExpenseForm } from "../hooks/useExpenseForm";
+import { formatDate } from "../utils/expenseUtils";
 
 interface ExpenseFormProps {
   initialData?: Partial<ExpenseFormData>;
@@ -55,7 +56,6 @@ export function ExpenseForm({
         onChange={(e) => handleChange("amount", e.target.value)}
         error={errors.amount}
         fullWidth
-        required
       />
 
       <TextField
@@ -66,7 +66,6 @@ export function ExpenseForm({
         onChange={(e) => handleChange("description", e.target.value)}
         error={errors.description}
         fullWidth
-        required
       />
 
       <SelectBox
@@ -76,17 +75,16 @@ export function ExpenseForm({
         onChange={(e) => handleChange("category", e.target.value)}
         error={errors.category}
         fullWidth
-        required
       />
 
       <TextField
         label="Date"
         type="date"
+        max={formatDate(new Date())}
         value={formData.date}
         onChange={(e) => handleChange("date", e.target.value)}
         error={errors.date}
         fullWidth
-        required
       />
 
       <div style={buttonGroupStyle}>
