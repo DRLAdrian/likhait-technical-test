@@ -2,7 +2,7 @@
  * API service for communicating with the backend
  */
 
-import { Expense, ExpenseFormData } from "../types";
+import { Category, CategoryFormData, Expense, ExpenseFormData } from "../types";
 
 const API_BASE_URL = "http://localhost:3000/api";
 
@@ -36,9 +36,7 @@ export async function getExpenses(
 /**
  * Fetch all categories
  */
-export async function fetchCategories(): Promise<
-  Array<{ id: number; name: string }>
-> {
+export async function getCategories(): Promise<Category[]> {
   const response = await fetch(`${API_BASE_URL}/categories`);
   if (!response.ok) {
     throw new Error("Failed to fetch categories");
@@ -51,7 +49,7 @@ export async function fetchCategories(): Promise<
  */
 export async function createExpense(data: ExpenseFormData): Promise<Expense> {
   // Convert category name to category_id
-  const categories = await fetchCategories();
+  const categories = await getCategories();
   const category = categories.find((c) => c.name === data.category);
 
   const expenseData = {
@@ -76,6 +74,30 @@ export async function createExpense(data: ExpenseFormData): Promise<Expense> {
   return response.json();
 }
 
+export async function createCategory(data: CategoryFormData): Promise<void> {
+  const categoryData = {
+    name: data.name,
+  };
+
+  const response = await fetch(`${API_BASE_URL}/categories`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ category: categoryData }),
+  });
+
+  const json = await response.json();
+
+  if (!response.ok) {
+    const error = new Error("Failed to create category") as Error & {
+      responseErrors?: string[];
+    };
+    error.responseErrors = Array.isArray(json.errors) ? json.errors : [];
+    throw error;
+  }
+}
+
 /**
  * Update an existing expense
  */
@@ -83,12 +105,23 @@ export async function updateExpense(
   id: number,
   data: Partial<ExpenseFormData>,
 ): Promise<Expense> {
+
+  const categories = await getCategories();
+  const category = categories.find((c) => c.name === data.category);
+
+  const expenseData = {
+    description: data.description,
+    amount: data.amount,
+    category_id: category?.id,
+    date: data.date,
+  };
+
   const response = await fetch(`${API_BASE_URL}/expenses/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ expense: data }),
+    body: JSON.stringify({ expense: expenseData }),
   });
 
   if (!response.ok) {
