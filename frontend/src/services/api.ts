@@ -87,8 +87,14 @@ export async function createCategory(data: CategoryFormData): Promise<void> {
     body: JSON.stringify({ category: categoryData }),
   });
 
+  const json = await response.json();
+
   if (!response.ok) {
-    throw new Error("Failed to create category");
+    const error = new Error("Failed to create category") as Error & {
+      responseErrors?: string[];
+    };
+    error.responseErrors = Array.isArray(json.errors) ? json.errors : [];
+    throw error;
   }
 }
 

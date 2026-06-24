@@ -53,7 +53,14 @@ export function useCategoryForm({ initialData, onSubmit }: UseCategoryFormProps)
       });
       setErrors({});
     } catch (error) {
-      console.error("Form submission error:", error);
+      const responseErrors = (error as Error & { responseErrors?: string[] })
+        .responseErrors;
+
+      if (responseErrors && responseErrors.length > 0) {
+        setErrors({ name: responseErrors[0] });
+      } else {
+        console.error("Form submission error:", error);
+      }
     } finally {
       setIsSubmitting(false);
     }
