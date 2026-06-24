@@ -14,6 +14,7 @@ const HistoryPage: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<ModalType | null>(null);
 
   // Get year and month from URL params, default to current date if not provided
   const getInitialYearMonth = () => {
@@ -72,6 +73,11 @@ const HistoryPage: React.FC = () => {
     updateURL(selectedYear, month);
   };
 
+  const openModal = (type: ModalType) => {
+    setModalType(type);
+    setIsModalOpen(true);
+  };
+
   const handleAddCategory = async (data: CategoryFormData) => {
     try {
       await createCategory(data);
@@ -93,6 +99,29 @@ const HistoryPage: React.FC = () => {
       throw error;
     }
   };
+
+  const modalConfig = {
+    category: {
+      title: "Add Category",
+      content: () => (
+        <CategoryForm
+          onSubmit={handleAddCategory}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      ),
+    },
+    expense: {
+      title: "Add Expense",
+      content: () => (
+        <ExpenseForm
+          onSubmit={handleAddExpense}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      ),
+    },
+  } as const;
+
+  type ModalType = keyof typeof modalConfig;
 
   // Calculate category breakdown
   const categoryData = expenses.reduce(
@@ -166,10 +195,10 @@ const HistoryPage: React.FC = () => {
           />
         </div>
         <div style={actionButtonsStyle}>
-          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+          <Button variant="primary" onClick={() => openModal("category")}>
             Add Category
           </Button>
-          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+          <Button variant="primary" onClick={() => openModal("expense")}>
             Add Expense
           </Button>
         </div>
@@ -204,22 +233,9 @@ const HistoryPage: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Add New Expense"
+        title={modalType ? modalConfig[modalType].title : ""}
       >
-        <ExpenseForm
-          onSubmit={handleAddExpense}
-          onCancel={() => setIsModalOpen(false)}
-        />
-      </Modal>
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Add New Expense"
-      >
-        <CategoryForm
-          onSubmit={handleAddCategory}
-          onCancel={() => setIsModalOpen(false)}
-        />
+        {modalType && modalConfig[modalType].content()}
       </Modal>
     </div>
   );
