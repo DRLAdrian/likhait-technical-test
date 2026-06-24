@@ -49,5 +49,12 @@ RSpec.describe Expense, type: :model do
       expect(expense).not_to be_valid
       expect(expense.errors[:category]).to include("must exist")
     end
+
+    it "is invalid with a future date" do
+      expense.date = 5.days.from_now.to_date
+
+      expect(expense).not_to be_valid
+      expect(expense.errors[:date]).to include("must not be a future date")
+    end
   end
 end

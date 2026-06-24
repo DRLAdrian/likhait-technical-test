@@ -125,7 +125,24 @@ RSpec.describe "Api::Expenses", type: :request do
             description: "Empty Category",
             amount: 150.5,
             category_id: nil,
-            date: Date.current
+            date: Date.today
+          }
+        }
+
+        expect {
+          post "/api/expenses", params: invalid_params, as: :json
+        }.not_to change(Expense, :count)
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "with future date" do
+        invalid_params = {
+          expense: {
+            description: "Future Date",
+            amount: 150.5,
+            category_id: food_category.id,
+            date: 5.days.from_now.to_date
           }
         }
 
